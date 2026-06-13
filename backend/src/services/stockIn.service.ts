@@ -23,9 +23,9 @@ export class StockInService {
 
   async create(payload: Partial<StockInRecord>, user: AuthUser) {
     const record = await this.repo.save(this.repo.create(payload));
-    if (record.qcResult !== QCResult.Skip && record.itemType === ItemType.Reagent) {
+    if (record.qcResult !== QCResult.Fail && record.itemType === ItemType.Reagent) {
       await this.reagents.adjustStock(record.itemId, Number(record.quantity), user, 'STOCK_IN_REAGENT');
-    } else if (record.qcResult !== QCResult.Skip) {
+    } else if (record.qcResult !== QCResult.Fail) {
       await this.consumables.adjustStock(record.itemId, Number(record.quantity), user, 'STOCK_IN_CONSUMABLE');
     }
     await this.audit.record(user, 'CREATE_STOCK_IN', 'stockInRecord', { id: record.id, itemType: record.itemType });

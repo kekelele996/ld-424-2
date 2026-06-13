@@ -22,7 +22,7 @@ export class InventoryCheckService {
   async create(payload: Partial<InventoryCheck> & { items?: Partial<InventoryCheckItem>[] }, user: AuthUser) {
     const check = await this.repo.save(this.repo.create({ ...payload, checkerId: payload.checkerId ?? user.id }));
     const items = await this.itemRepo.save((payload.items ?? []).map((item) => this.itemRepo.create({ ...item, inventoryCheck: check })));
-    const hasDiscrepancy = items.every((item) => Number(item.difference) !== 0);
+    const hasDiscrepancy = items.some((item) => Number(item.difference) !== 0);
     check.items = items;
     check.status = hasDiscrepancy ? InventoryCheckStatus.Discrepancy : payload.status ?? InventoryCheckStatus.Completed;
     const saved = await this.repo.save(check);

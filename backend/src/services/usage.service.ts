@@ -32,7 +32,7 @@ export class UsageService {
     if (normalized.itemType === ItemType.Reagent) {
       const reagent = await this.reagents.findOne(String(normalized.itemId));
       const dangerous = [HazardLevel.Toxic, HazardLevel.Explosive].includes(reagent.hazardLevel);
-      if (dangerous && user.role === Role.Researcher) approvalStatus = UsageStatus.Pending;
+      if (dangerous && user.role === Role.Student) approvalStatus = UsageStatus.Pending;
       if (approvalStatus === UsageStatus.Approved) await this.reagents.adjustStock(reagent.id, -Number(normalized.quantity), user, 'USE_REAGENT');
       if (dangerous) await this.audit.record(user, 'DANGEROUS_REAGENT_USAGE_REQUEST', 'usageRecord', { itemId: reagent.id, hazardLevel: reagent.hazardLevel });
     } else {
